@@ -25,8 +25,8 @@ class GUI:
 
         self.root.mainloop()
 
-
     def main(self):
+        self.testResult.config(text= "")
         with open("input2.txt", "r") as file:
             N, T = map(int, file.readline().strip().split())
 
@@ -65,10 +65,10 @@ class DPDA:
         self.stateRoot = tk.Label(self.root, font=('Arial, 14'))
         self.stateRoot.grid(row=1, column=0)
       
-        self.inpStrRoot = tk.Label(self.root, font=('Arial, 14'))
+        self.inpStrRoot = tk.Label(self.root, font=('Arial, 14'), height=1, width=10)
         self.inpStrRoot.grid(row=1, column=1)
 
-        self.stackRoot = tk.Label(self.root, font=('Arial, 14'))
+        self.stackRoot = tk.Label(self.root, font=('Arial, 14'), height=1, width=15)
         self.stackRoot.grid(row=2, column=0, columnspan=3)
 
         self.isClick = False
@@ -96,7 +96,6 @@ class DPDA:
             self.stackRoot.config(text="Stack: " + self.stack.getReverse())
             result, transition = self._isDefinedTransition(self.states[currState], string[i], stackTop)
             if result:
-                currState = transition['TO']
                 self.stateRoot.config(text="State " + str(currState))
                 self.inpStrRoot.config(text=string[i:])
                 if transition["POP"] != '~' and transition["POP"] == stackTop:
@@ -104,7 +103,9 @@ class DPDA:
                 if transition["PUSH"] != '~':
                     self.stack.push(transition["PUSH"])
                 stackTop = self.stack.peek()
+                currState = transition['TO']
                 if i == len(string) - 1 and self.stack.isEmpty() and currState in self.accept:
+                    self.stackRoot.config(text="Stack: " + self.stack.getReverse())
                     return True
             else:
                 return False
