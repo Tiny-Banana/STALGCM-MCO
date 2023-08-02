@@ -94,10 +94,10 @@ class DPDA:
         
         for i in range(len(string)):
             self.stackRoot.config(text="Stack: " + self.stack.getReverse())
+            self.stateRoot.config(text="State " + str(currState))
+            self.inpStrRoot.config(text=string[i:])
             result, transition = self._isDefinedTransition(self.states[currState], string[i], stackTop)
             if result:
-                self.stateRoot.config(text="State " + str(currState))
-                self.inpStrRoot.config(text=string[i:])
                 if transition["POP"] != '~' and transition["POP"] == stackTop:
                     self.stack.pop()
                 if transition["PUSH"] != '~':
