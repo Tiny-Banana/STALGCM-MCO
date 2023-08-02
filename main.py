@@ -6,7 +6,7 @@ class GUI:
     def __init__(self):
         self.root = tk.Tk()
 
-        self.root.geometry("500x500")
+        self.root.geometry("500x300")
         self.root.title("DPDA")
 
         self.label1 = tk.Label(self.root, text="Enter string: ", font=("Arial, 14"))
