@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import StringVar
+from tkinter import ttk
+from tkinter import filedialog
 
 class GUI:
 
@@ -10,18 +12,18 @@ class GUI:
         self.root.title("DPDA")
 
         self.label1 = tk.Label(self.root, text="Enter string: ", font=("Arial, 14"))
-        self.label1.grid(row=0, column=0, padx=30, pady=10)
+        self.label1.grid(row=1, column=0, padx=30, pady=10)
 
         self.string = StringVar()
 
         self.textbox = tk.Entry(self.root, textvariable=self.string, font=("Arial, 14"))
-        self.textbox.grid(row=0, column=1)
+        self.textbox.grid(row=1, column=1)
 
-        self.button = tk.Button(self.root, text="Test", font=("Arial, 14"), command=self.main)
-        self.button.grid(row=0, column=2, padx=20)
+        self.button = tk.Button(self.root, text="Run", font=("Arial, 14"), command=self.main)
+        self.button.grid(row=1, column=2, padx=20)
 
         self.testResult = tk.Label(self.root, font=("Arial, 14"))
-        self.testResult.grid(row=3, column=0, columnspan=3)
+        self.testResult.grid(row=5, column=0, columnspan=3)
 
         self.root.mainloop()
 
@@ -61,19 +63,18 @@ class DPDA:
         self.start = start
         self.accept = accept
         self.root = root
+        
+        self.canvas = tk.Canvas(self.root, width=420, height=100)
+        self.canvas.grid(row=2, column=0, columnspan=5)
+        self.canvas.create_line(0, 0, 550, 0, fill="black", width=10)
 
-        self.stateRoot = tk.Label(self.root, font=('Arial, 14'))
-        self.stateRoot.grid(row=1, column=0)
-      
-        self.inpStrRoot = tk.Label(self.root, font=('Arial, 14'), height=1, width=10)
-        self.inpStrRoot.grid(row=1, column=1)
-
-        self.stackRoot = tk.Label(self.root, font=('Arial, 14'), height=1, width=15)
-        self.stackRoot.grid(row=2, column=0, columnspan=3)
+        self.stateRoot = self.canvas.create_text(1, 30, text="Current State: q", fill="black", font=("Arial", 14), anchor="w")
+        self.inpStrRoot = self.canvas.create_text(1, 55, text="Input String:", fill="black", font=("Arial", 14), anchor="w")
+        self.stackRoot = self.canvas.create_text(1, 80, text="Stack:", fill="black", font=("Arial", 14), anchor="w")
 
         self.isClick = False
         self.next = tk.Button(self.root, text="Next", font=("Arial, 14"), command=self._click)
-        self.next.grid(row=4, column=0, columnspan=3, pady=30)
+        self.next.grid(row=6, column=0, columnspan=3, pady=30)
     
     def _click(self):
         self.isClick = True
@@ -84,6 +85,9 @@ class DPDA:
                 return True, transition
         return False, None
     
+    def _bold(self, x, char):
+        self.canvas.create_text(x, 55, text=char, fill="black", font=("Arial", 14, "bold"), anchor="w")
+
     def test(self, string):
         initialState = self.start
         currState = initialState
@@ -92,10 +96,11 @@ class DPDA:
         if len(string) == 0:
             return False
         
+        self.canvas.itemconfig(self.inpStrRoot, text="Input String: " + string[:-1])
+        x = 106.5
         for i in range(len(string)):
-            self.stackRoot.config(text="Stack: " + self.stack.getReverse())
-            self.stateRoot.config(text="State " + str(currState))
-            self.inpStrRoot.config(text=string[i:])
+            self.canvas.itemconfig(self.stateRoot, text="Current State: q" + str(currState))
+            self.canvas.itemconfig(self.stackRoot, text="Stack: " + self.stack.getReverse())
             result, transition = self._isDefinedTransition(self.states[currState], string[i], stackTop)
             if result:
                 if transition["POP"] != '~' and transition["POP"] == stackTop:
@@ -104,15 +109,19 @@ class DPDA:
                     self.stack.push(transition["PUSH"])
                 stackTop = self.stack.peek()
                 currState = transition['TO']
+                
                 if i == len(string) - 1 and self.stack.isEmpty() and currState in self.accept:
-                    self.stackRoot.config(text="Stack: " + self.stack.getReverse())
+                    self.canvas.itemconfig(self.stackRoot, text="Stack:")
                     return True
             else:
                 return False
-
+                
             self.isClick = False
             while not self.isClick:
-                self.root.update()  # Process events to update the GUI
+                self.root.update() 
+
+            self._bold(x, string[i])
+            x += 10.3
             
         return False
     
