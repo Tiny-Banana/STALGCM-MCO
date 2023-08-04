@@ -1,6 +1,6 @@
 # STALGCM-MCO
 
-# Input Machine
+# How to Use
 
 
 The first line reads a pair **(N, T)** of integers, indicating the number of states and the number of transitions that make up the PDA respectively.
