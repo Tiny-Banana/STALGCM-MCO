@@ -1,14 +1,15 @@
 import tkinter as tk
+import os
 from tkinter import StringVar
-from tkinter import ttk
 from tkinter import filedialog
+
 
 class GUI:
 
     def __init__(self):
         self.root = tk.Tk()
 
-        self.root.geometry("500x300")
+        self.root.geometry("500x400")
         self.root.title("DPDA")
 
         self.label1 = tk.Label(self.root, text="Enter string: ", font=("Arial, 14"))
@@ -25,35 +26,52 @@ class GUI:
         self.testResult = tk.Label(self.root, font=("Arial, 14"))
         self.testResult.grid(row=5, column=0, columnspan=3)
 
+        self.file = tk.Button(self.root, text="Upload machine", font=("Arial, 14"), command=self._fileUpload)
+        self.file.grid(row=7, column=0, columnspan=2, sticky="w", padx=30)
+
+        self.fileLabel = tk.Label(self.root, text="", font=("Arial, 14"))
+        self.fileLabel.grid(row=7, column=1, sticky="w", padx=30)
+
+        self.file_basename = ""
+
         self.root.mainloop()
+
+    def _fileUpload(self):
+        self.filename = filedialog.askopenfilename(initialdir="/", title="Upload file", filetype=(("txt", "*.txt"), ("All Files", "*.*")))
+        if self.filename:
+            self.file_basename = os.path.basename(self.filename)
+            self.fileLabel.configure(text=self.file_basename, fg="lightgreen")
 
     def main(self):
         self.testResult.config(text= "")
-        with open("input2.txt", "r") as file:
-            N, T = map(int, file.readline().strip().split())
+        if (len(self.file_basename) > 0):
+            with open(self.file_basename, "r") as file:
+                N, T = map(int, file.readline().strip().split())
 
-            states = [ [] for _ in range(N) ]
+                states = [ [] for _ in range(N) ]
 
-            for i in range(T):
-                #FROM state Q to O, reading A, popping E and pushing D
-                Q, O, A, E, D = file.readline().strip().split()
-                Q, O = map(int, (Q, O))
-                transition = {"FROM":Q, "TO":O, "READ":A, "POP":E, "PUSH":D}
-                states[Q].append(transition)
+                for i in range(T):
+                    #FROM state Q to O, reading A, popping E and pushing D
+                    Q, O, A, E, D = file.readline().strip().split()
+                    Q, O = map(int, (Q, O))
+                    transition = {"FROM":Q, "TO":O, "READ":A, "POP":E, "PUSH":D}
+                    states[Q].append(transition)
 
-            S = int(file.readline())
-            A_str = file.readline().strip().split()
-            A = [int(num) for num in A_str]
+                S = int(file.readline())
+                C_str = file.readline().strip().split()
+                C = [int(num) for num in C_str]
 
-        string = self.string.get() + '~'
+            string = self.string.get() + '~'
 
-        dpda = DPDA(states, S, A, self.root)
-        result = dpda.test(string)
+            dpda = DPDA(states, S, C, self.root)
+            result = dpda.test(string)
 
-        if (result):
-            self.testResult.config(text= "Accepted", fg="green")
+            if (result):
+                self.testResult.config(text= "Accepted", fg="green")
+            else:
+                self.testResult.config(text= "Rejected", fg="red")
         else:
-            self.testResult.config(text= "Rejected", fg="red")
+            self.fileLabel.configure(text="Input a valid file", fg="red")
         
 class DPDA:
 
@@ -85,8 +103,8 @@ class DPDA:
                 return True, transition
         return False, None
     
-    def _bold(self, x, char):
-        self.canvas.create_text(x, 55, text=char, fill="black", font=("Arial", 14, "bold"), anchor="w")
+    def _color(self, x, char):
+        self.canvas.create_text(x, 55, text=char, fill="gray", font=("Arial", 14), anchor="w")
 
     def test(self, string):
         initialState = self.start
@@ -95,8 +113,12 @@ class DPDA:
 
         if len(string) == 0:
             return False
-        
-        self.canvas.itemconfig(self.inpStrRoot, text="Input String: " + string[:-1])
+
+        x = 106.5
+        for i in range(len(string) - 1):
+            self.canvas.create_text(x, 55, text=string[i], fill="black", font=("Arial", 14), anchor="w")
+            x += 10.3
+
         x = 106.5
         for i in range(len(string)):
             self.canvas.itemconfig(self.stateRoot, text="Current State: q" + str(currState))
@@ -120,7 +142,7 @@ class DPDA:
             while not self.isClick:
                 self.root.update() 
 
-            self._bold(x, string[i])
+            self._color(x, string[i])
             x += 10.3
             
         return False
