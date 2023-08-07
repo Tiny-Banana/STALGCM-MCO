@@ -1,3 +1,8 @@
+#  a simple simulation of a Deterministic Pushdown Automata made by:
+#  Bautista, Derek
+#  Corpuz, Joshua
+#  Delos Reyes, Jomar
+
 import tkinter as tk
 import os
 from tkinter import StringVar
